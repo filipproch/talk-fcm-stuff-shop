@@ -1,0 +1,85 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="shop-button.html">
+<link rel="import" href="shop-common-styles.html">
+<link rel="import" href="shop-form-styles.html">
+
+<dom-module id="shop-login">
+
+    <template>
+
+        <style include="shop-common-styles shop-button shop-form-styles">
+
+            .login-options {
+                @apply(--layout-vertical);
+                @apply(--layout-center);
+                margin: 24px 0;
+            }
+
+            .login-options paper-button {
+                font-size: 1.2em;
+            }
+
+            paper-button.google {
+                background-color: #4285f4;
+                color: #fff;
+            }
+
+        </style>
+
+        <div class="main-frame">
+            <div class="subsection" visible>
+                <header>
+                    <h1>Login</h1>
+                </header>
+
+                <div class="login-options">
+                    <paper-button class="google" on-tap="_login" raised>Login with Google</paper-button>
+                </div>
+
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+
+      Polymer({
+
+        is: 'shop-login',
+
+        properties: {
+
+          visible: {
+            type: Boolean,
+            observer: '_visibleChanged'
+          },
+
+        },
+
+        _login: function () {
+          this.fire('request-login', {provider: 'google'})
+        },
+
+        _visibleChanged: function (visible) {
+          if (visible) {
+            // Notify the section's title
+            this.fire('change-section', {title: 'Login'});
+          }
+        }
+
+      });
+
+    </script>
+
+</dom-module>

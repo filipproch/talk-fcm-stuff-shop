@@ -1,0 +1,153 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="shop-icons.html">
+<link rel="import" href="shop-image.html">
+<link rel="import" href="shop-select.html">
+
+<dom-module id="shop-order-item">
+
+    <template strip-whitespace>
+
+        <style include="shop-select">
+
+            :host {
+                @apply(--layout-vertical);
+                position: relative;
+                padding: 12px 0;
+            }
+
+            .headline {
+                @apply(--layout-horizontal);
+                font-size: 1.2em;
+                margin: 0 0 16px 0;
+            }
+
+            .headline .name {
+                @apply(--layout-flex);
+            }
+
+            .headline .date {
+                margin: 0 0 0 24px;
+            }
+
+            .headline .state {
+                font-weight: bold;
+            }
+
+            .goods {
+                @apply(--layout-vertical);
+            }
+
+            .goods .good {
+                @apply(--layout-horizontal);
+            }
+
+            .goods .good .name {
+                @apply(--layout-flex);
+            }
+
+            .goods .good .amount {
+                margin: 0 24px;
+            }
+
+            .summary {
+                @apply(--layout-horizontal);
+                @apply(--layout-end-justified);
+                font-weight: bold;
+            }
+
+        </style>
+
+        <div class="headline">
+            <div class="name">
+                <a href$="/orders/[[order.$key]]">#[[order.$key]]</a>
+            </div>
+            <div class="state">[[_formatState(order.state)]]</div>
+            <div class="date">[[_formatOrderDate(order.timestamp)]]</div>
+        </div>
+        <div class="goods">
+            <template is="dom-repeat" items="[[orderGoods]]" as="orderGood">
+                <div class="good">
+                    <div class="name">[[orderGood.name]]</div>
+                    <div class="amount">[[orderGood.amount]]pcs</div>
+                    <div class="price">$[[_calculateGoodTotal(orderGood)]]</div>
+                </div>
+            </template>
+        </div>
+        <div class="summary">
+            <div class="total">Total: $[[_calculateOrderTotal(orderGoods)]]</div>
+        </div>
+    </template>
+
+    <script>
+
+      Polymer({
+
+        is: 'shop-order-item',
+
+        properties: {
+
+          order: Object,
+
+          goods: Object,
+
+          orderGoods: {
+            type: Array,
+            computed: '_computeOrderGoodsList(order, goods)'
+          }
+
+        },
+
+        _computeOrderGoodsList: function (order, goods) {
+          var orderGoods = order.goods;
+
+          return Object.keys(orderGoods).map(function (goodId) {
+            return {
+              name: goods[goodId].name,
+              amount: orderGoods[goodId],
+              price: goods[goodId].price
+            }
+          })
+        },
+
+        _formatOrderDate: function (timestamp) {
+          return moment(timestamp).format('DD/MM/YYYY hh:mm');
+        },
+
+        _formatState: function (state) {
+          switch (state) {
+            case 'new': return 'New order';
+            case 'processing': return 'Order is being processed';
+            case 'shipping_waiting': return 'Order is being shipped';
+            case 'shipping_transfer': return 'On it\'s way to you';
+            case 'shipping_success': return 'Delivered';
+            case 'canceled': return 'Canceled';
+          }
+        },
+
+        _calculateGoodTotal: function (orderGood) {
+          return orderGood.amount * orderGood.price
+        },
+
+        _calculateOrderTotal: function (orderGoods) {
+          return orderGoods.reduce(function (total, good) {
+            return total + (good.amount * good.price)
+          }, 0)
+        }
+
+      });
+
+    </script>
+
+</dom-module>

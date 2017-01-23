@@ -1,0 +1,122 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="shop-button.html">
+<link rel="import" href="shop-common-styles.html">
+<link rel="import" href="shop-form-styles.html">
+
+<dom-module id="shop-orders">
+
+  <template>
+
+    <style include="shop-common-styles shop-button shop-form-styles">
+
+      .list {
+        margin: 40px 0;
+      }
+
+      shop-order-item:not(:last-of-type) {
+        border-bottom: 1px solid var(--divider-color);
+      }
+
+    </style>
+
+    <div class="main-frame">
+      <div class="subsection" visible>
+        <header>
+          <h1>Your orders</h1>
+        </header>
+        <div class="list">
+          <template is="dom-repeat" items="[[orders]]" as="order">
+            <shop-order-item order="[[order]]" goods="[[goods]]"></shop-order-item>
+          </template>
+        </div>
+      </div>
+      <!--<div class="subsection" visible$="[[!_hasItems]]">
+        <p class="empty-cart">Your <iron-icon icon="shopping-cart"></iron-icon> is empty.</p>
+      </div>
+      <div class="subsection" visible$="[[_hasItems]]">
+        <header>
+          <h1>Your Cart</h1>
+          <span>([[_getPluralizedQuantity(cart.length)]])</span>
+        </header>
+        <div class="list">
+          <template is="dom-repeat" items="[[cart]]" as="entry">
+            <shop-cart-item entry="[[entry]]"></shop-cart-item>
+          </template>
+        </div>
+        <div class="checkout-box">
+          Total: <span class="subtotal">[[_formatTotal(total)]]</span>
+          <shop-button responsive>
+            <a href="/checkout">Checkout</a>
+          </shop-button>
+        </div>
+      </div>-->
+    </div>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'shop-orders',
+
+      properties: {
+
+        orders: {
+          type: Array,
+          value: [{
+            $key: 'sdofjsln434knsld',
+            goods: {
+              'good_id_1': 2
+            },
+            timestamp: Date.now(),
+            state: 'new'
+          }, {
+            $key: 'slkfjsiogjwkmvpw',
+            goods: {
+              'good_id_1': 7
+            },
+            timestamp: Date.now(),
+            state: 'processing'
+          }]
+        },
+
+        goods: {
+          type: Object,
+          value: {
+            'good_id_1': {
+              name: 'Red stuff',
+              price: 70,
+              description: 'Description of red stuff'
+            }
+          }
+        },
+
+        visible: {
+          type: Boolean,
+          observer: '_visibleChanged'
+        }
+      },
+
+      _visibleChanged: function(visible) {
+        if (visible) {
+          // Notify the section's title
+          this.fire('change-section', { title: 'Your orders' });
+        }
+      }
+
+    });
+
+  </script>
+
+</dom-module>
