@@ -43,6 +43,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     </style>
 
+    <firebase-document
+      path="/goods"
+      data="{{goods}}">
+    </firebase-document>
+
     <div class="main-frame">
       <div class="subsection" visible$="[[!_hasItems]]">
         <p class="empty-cart">Your <iron-icon icon="shopping-cart"></iron-icon> is empty.</p>
@@ -54,7 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </header>
         <div class="list">
           <template is="dom-repeat" items="[[cart]]" as="entry">
-            <shop-cart-item entry="[[entry]]"></shop-cart-item>
+            <shop-cart-item entry="[[entry]]" item="[[_getItem(entry.$key, goods)]]"></shop-cart-item>
           </template>
         </div>
         <div class="checkout-box">
@@ -98,6 +103,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _computeHasItem: function(cartLength) {
         return cartLength > 0;
+      },
+
+      _getItem: function (key, goods) {
+        return goods[key];
       },
 
       _getPluralizedQuantity: function(quantity) {

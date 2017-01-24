@@ -15,108 +15,102 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="shop-orders">
 
-  <template>
+    <template>
 
-    <style include="shop-common-styles shop-button shop-form-styles">
+        <style include="shop-common-styles shop-button shop-form-styles">
 
-      .list {
-        margin: 40px 0;
-      }
-
-      shop-order-item:not(:last-of-type) {
-        border-bottom: 1px solid var(--divider-color);
-      }
-
-    </style>
-
-    <div class="main-frame">
-      <div class="subsection" visible>
-        <header>
-          <h1>Your orders</h1>
-        </header>
-        <div class="list">
-          <template is="dom-repeat" items="[[orders]]" as="order">
-            <shop-order-item order="[[order]]" goods="[[goods]]"></shop-order-item>
-          </template>
-        </div>
-      </div>
-      <!--<div class="subsection" visible$="[[!_hasItems]]">
-        <p class="empty-cart">Your <iron-icon icon="shopping-cart"></iron-icon> is empty.</p>
-      </div>
-      <div class="subsection" visible$="[[_hasItems]]">
-        <header>
-          <h1>Your Cart</h1>
-          <span>([[_getPluralizedQuantity(cart.length)]])</span>
-        </header>
-        <div class="list">
-          <template is="dom-repeat" items="[[cart]]" as="entry">
-            <shop-cart-item entry="[[entry]]"></shop-cart-item>
-          </template>
-        </div>
-        <div class="checkout-box">
-          Total: <span class="subtotal">[[_formatTotal(total)]]</span>
-          <shop-button responsive>
-            <a href="/checkout">Checkout</a>
-          </shop-button>
-        </div>
-      </div>-->
-    </div>
-
-  </template>
-
-  <script>
-
-    Polymer({
-
-      is: 'shop-orders',
-
-      properties: {
-
-        orders: {
-          type: Array,
-          value: [{
-            $key: 'sdofjsln434knsld',
-            goods: {
-              'good_id_1': 2
-            },
-            timestamp: Date.now(),
-            state: 'new'
-          }, {
-            $key: 'slkfjsiogjwkmvpw',
-            goods: {
-              'good_id_1': 7
-            },
-            timestamp: Date.now(),
-            state: 'processing'
-          }]
-        },
-
-        goods: {
-          type: Object,
-          value: {
-            'good_id_1': {
-              name: 'Red stuff',
-              price: 70,
-              description: 'Description of red stuff'
+            .list {
+                margin: 40px 0;
             }
+
+            shop-order-item:not(:last-of-type) {
+                border-bottom: 1px solid var(--divider-color);
+            }
+
+        </style>
+
+        <firebase-query
+                path="/orders/[[user.uid]]"
+                data="{{orders}}">
+        </firebase-query>
+
+        <div class="main-frame">
+            <div class="subsection" visible>
+                <header>
+                    <h1>Your orders</h1>
+                </header>
+                <div class="list">
+                    <template is="dom-repeat" items="[[orders]]" as="order">
+                        <shop-order-item order="[[order]]" goods="[[goods]]"></shop-order-item>
+                    </template>
+                </div>
+            </div>
+            <!--<div class="subsection" visible$="[[!_hasItems]]">
+              <p class="empty-cart">Your <iron-icon icon="shopping-cart"></iron-icon> is empty.</p>
+            </div>
+            <div class="subsection" visible$="[[_hasItems]]">
+              <header>
+                <h1>Your Cart</h1>
+                <span>([[_getPluralizedQuantity(cart.length)]])</span>
+              </header>
+              <div class="list">
+                <template is="dom-repeat" items="[[cart]]" as="entry">
+                  <shop-cart-item entry="[[entry]]"></shop-cart-item>
+                </template>
+              </div>
+              <div class="checkout-box">
+                Total: <span class="subtotal">[[_formatTotal(total)]]</span>
+                <shop-button responsive>
+                  <a href="/checkout">Checkout</a>
+                </shop-button>
+              </div>
+            </div>-->
+        </div>
+
+    </template>
+
+    <script>
+
+      Polymer({
+
+        is: 'shop-orders',
+
+        properties: {
+
+          user: {
+            type: Object
+          },
+
+          orders: {
+            type: Array
+          },
+
+          goods: {
+            type: Object,
+            value: {
+              'good_id_1': {
+                name: 'Red stuff',
+                price: 70,
+                description: 'Description of red stuff'
+              }
+            }
+          },
+
+          visible: {
+            type: Boolean,
+            observer: '_visibleChanged'
           }
         },
 
-        visible: {
-          type: Boolean,
-          observer: '_visibleChanged'
+        _visibleChanged: function (visible) {
+          if (visible) {
+            // Notify the section's title
+            this.fire('change-section', {title: 'Your orders'});
+          }
         }
-      },
 
-      _visibleChanged: function(visible) {
-        if (visible) {
-          // Notify the section's title
-          this.fire('change-section', { title: 'Your orders' });
-        }
-      }
+      });
 
-    });
-
-  </script>
+    </script>
 
 </dom-module>

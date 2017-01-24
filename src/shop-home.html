@@ -101,12 +101,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <template is="dom-repeat" items="[[categories]]" strip-whitespace>
       <div class="item">
-        <a class="image-link" href$="/list/[[item.name]]">
-          <shop-image src="[[item.image]]" alt="[[item.title]]" placeholder-img="[[item.placeholder]]"></shop-image>
+        <a class="image-link" href$="/list/[[item.$key]]">
+          <shop-image src="[[item.image]]" alt="[[item.name]]"></shop-image>
         </a>
-        <h2>[[item.title]]</h2>
+        <h2>[[item.name]]</h2>
         <shop-button>
-          <a aria-label$="[[item.title]] Shop Now" href$="/list/[[item.name]]">Shop Now</a>
+          <a aria-label$="[[item.name]] Shop Now" href$="/list/[[item.$key]]">Shop Now</a>
         </shop-button>
       </div>
     </template>

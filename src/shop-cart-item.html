@@ -171,13 +171,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </a>
     <div class="flex">
       <div class="name">
-        <a href$="/detail/[[entry.item.category]]/[[entry.item.name]]">[[entry.item.title]]</a>
+        <a href$="/detail/[[item.category]]/[[entry.$key]]">[[item.name]]</a>
       </div>
       <div class="detail">
         <div class="quantity">
           <shop-select>
             <label prefix>Qty:</label>
-            <select id="quantitySelect" aria-label="Change quantity" value="[[entry.quantity]]"
+            <select id="quantitySelect" aria-label="Change quantity" value="[[entry.$val]]"
                 on-change="_quantityChange">
               <option value="1">1</option>
               <option value="2">2</option>
@@ -195,13 +195,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <shop-md-decorator aria-hidden="true"></shop-md-decorator>
           </shop-select>
         </div>
-        <div class="size">Size: <span>[[entry.size]]</span></div>
-        <div class="price">[[_formatPrice(entry.item.price)]]</div>
+        <div class="price">[[_formatPrice(item.price)]]</div>
 
         <!--
           Use on-click instead of on-tap to prevent the next cart item to be focused
         -->
-        <paper-icon-button class="delete-button" icon="close" aria-label$="Delete item [[entry.item.title]]"
+        <paper-icon-button class="delete-button" icon="close" aria-label$="Delete item [[item.name]]"
             on-click="_removeItem"></paper-icon-button>
       </div>
     </div>
@@ -215,7 +214,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       properties: {
 
-        entry: Object
+        entry: Object,
+
+        item: Object
 
       },
 
@@ -225,9 +226,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _setCartItem: function(quantity) {
         this.fire('set-cart-item', {
-          item: this.entry.item,
-          quantity: quantity,
-          size: this.entry.size
+          item: this.entry.$key,
+          quantity: quantity
         });
       },
 

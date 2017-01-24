@@ -1,0 +1,95 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="shop-fire-data">
+    <template>
+        <firebase-query
+                path="categories"
+                data="{{categories}}">
+        </firebase-query>
+
+        <firebase-query
+                path="goods"
+                order-by-child="category"
+                equal-to="[[category.$key]]"
+                data="{{goods}}">
+        </firebase-query>
+    </template>
+
+    <script>
+      (function () {
+        Polymer({
+
+          is: 'shop-fire-data',
+
+          properties: {
+
+            categoryId: String,
+
+            itemId: String,
+
+            categories: {
+              type: Array,
+              notify: true
+            },
+
+            category: {
+              type: Object,
+              computed: '_computeCategory(categoryId)',
+              notify: true
+            },
+
+            goods: {
+              type: Array,
+              notify: true
+            },
+
+            item: {
+              type: Object,
+              computed: '_computeItem(goods, itemId)',
+              notify: true
+            },
+
+            failure: {
+              type: Boolean,
+              notify: true,
+              readOnly: true
+            }
+          },
+
+          _getCategoryObject: function (categoryId) {
+            for (var i = 0, c; c = this.categories[i]; ++i) {
+              if (c.$key === categoryId) {
+                return c;
+              }
+            }
+            //this.fire('show-invalid-url-warning');
+          },
+
+          _computeCategory: function (categoryId) {
+            return this._getCategoryObject(categoryId);
+          },
+
+          _computeItem: function (items, itemId) {
+            for (var i = 0, item; item = items[i]; ++i) {
+              if (item.$key === itemId) {
+                return item;
+              }
+            }
+            //this.fire('show-invalid-url-warning');
+          }
+        });
+
+      })();
+    </script>
+
+</dom-module>

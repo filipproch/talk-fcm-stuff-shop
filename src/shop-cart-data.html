@@ -9,109 +9,120 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 
 <dom-module id="shop-cart-data">
 
-  <template>
-    <app-localstorage-document key="shop-cart-data" data="{{cart}}"></app-localstorage-document>
-  </template>
+    <template>
+        <firebase-query
+                path="/users/[[user.uid]]/cart"
+                data="{{cart}}">
+        </firebase-query>
 
-  <script>
+        <firebase-document
+                path="goods"
+                data="{{goods}}">
+        </firebase-document>
+    </template>
 
-    Polymer({
+    <script>
 
-      is: 'shop-cart-data',
+      Polymer({
 
-      properties: {
+        is: 'shop-cart-data',
 
-        cart: {
-          type: Array,
-          value: function() {
-            return [];
+        properties: {
+
+          user: {
+            type: Object
           },
-          notify: true
+
+          goods: {
+            type: Object,
+            value: null
+          },
+
+          cart: {
+            type: Array,
+            value: function () {
+              return [];
+            },
+            notify: true
+          },
+
+          numItems: {
+            type: Number,
+            computed: '_computeNumItems(cart.*)',
+            notify: true
+          },
+
+          total: {
+            type: Number,
+            computed: '_computeTotal(cart.*, goods)',
+            notify: true
+          }
+
         },
 
-        numItems: {
-          type: Number,
-          computed: '_computeNumItems(cart.splices)',
-          notify: true
+        addItem: function (detail) {
+          var entry = this._getCartEntry(detail.item);
+          if (entry !== 0) {
+            detail.quantity += entry.$val;
+          }
+          this.setItem(detail);
         },
 
-        total: {
-          type: Number,
-          computed: '_computeTotal(cart.splices)',
-          notify: true
-        }
-
-      },
-
-      addItem: function(detail) {
-        var i = this._indexOfEntry(detail.item.name, detail.size);
-        if (i !== -1) {
-          detail.quantity += this.cart[i].quantity;
-        }
-        this.setItem(detail);
-      },
-
-      setItem: function(detail) {
-        var i = this._indexOfEntry(detail.item.name, detail.size);
-        if (detail.quantity === 0) {
-          // Remove item from cart when the new quantity is 0.
-          if (i !== -1) {
-            this.splice('cart', i, 1);
+        setItem: function (detail) {
+          if(this.user) {
+            firebase.database()
+              .ref(`/users/${this.user.uid}/cart/${detail.item}`)
+              .set(detail.quantity > 0 ? detail.quantity : null)
           }
-        } else {
-          // Use Polymer's array mutation methods (`splice`, `push`) so that observers
-          // on `cart.splices` are triggered.
-          if (i !== -1) {
-            this.splice('cart', i, 1, detail);
-          } else {
-            this.push('cart', detail);
+        },
+
+        clearCart: function () {
+          if(this.user) {
+            firebase.database()
+              .ref(`/users/${this.user.uid}/cart`)
+              .set({});
           }
-        }
-      },
+        },
 
-      clearCart: function() {
-        this.cart = [];
-      },
+        _computeNumItems: function () {
+          if (this.cart) {
+            return this.cart.reduce(function (total, entry) {
+              return total + entry.quantity;
+            }, 0);
+          }
 
-      _computeNumItems: function() {
-        if (this.cart) {
-          return this.cart.reduce(function(total, entry) {
-            return total + entry.quantity;
-          }, 0);
-        }
+          return 0;
+        },
 
-        return 0;
-      },
+        _computeTotal: function () {
+          if (this.cart && this.goods) {
+            console.log('_computeTotal', this.cart, this.goods);
+            return this.cart.reduce((total, entry) => {
+              return total + entry.$val * this.goods[entry.$key].price;
+            }, 0);
+          }
 
-      _computeTotal: function() {
-        if (this.cart) {
-          return this.cart.reduce(function(total, entry) {
-            return total + entry.quantity * entry.item.price;
-          }, 0);
-        }
+          return 0;
+        },
 
-        return 0;
-      },
-
-      _indexOfEntry: function(name, size) {
-        if (this.cart) {
-          for (var i = 0; i < this.cart.length; ++i) {
-            var entry = this.cart[i];
-            if (entry.item.name === name && entry.size === size) {
-              return i;
+        _getCartEntry: function (goodId) {
+          if (this.cart) {
+            for (var i = 0; i < this.cart.length; ++i) {
+              var entry = this.cart[i];
+              if (entry.$key === goodId) {
+                return entry;
+              }
             }
           }
+
+          return 0;
         }
 
-        return -1;
-      }
+      });
 
-    });
-
-  </script>
+    </script>
 
 </dom-module>

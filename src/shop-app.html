@@ -23,7 +23,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymerfire/firebase-messaging.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-query.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-document.html">
-<link rel="import" href="shop-category-data.html">
 <!-- Since 'home' is the default route, eagerly load it. -->
 <link rel="import" href="shop-home.html">
 
@@ -259,17 +258,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <iron-media-query query="max-width: 767px" query-matches="{{smallScreen}}"></iron-media-query>
 
-        <!--
-          shop-category-data provides the list of categories.
-        -->
-        <shop-category-data categories="{{categories}}"></shop-category-data>
+        <firebase-query
+                path="categories"
+                data="{{categories}}">
+        </firebase-query>
 
         <!--
           shop-cart-data maintains the state of the user's shopping cart (in localstorage) and
           calculates the total amount.
         -->
+
         <shop-cart-data
                 id="cart"
+                user="[[user]]"
                 cart="{{cart}}"
                 num-items="{{numItems}}"
                 total="{{total}}"></shop-cart-data>
@@ -283,7 +284,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             on-click="_toggleDrawer"
                             aria-label="Categories">
                     </paper-icon-button>
-                    <a class="back-btn" href="/list/[[categoryName]]" tabindex="-1">
+                    <a class="back-btn" href="/list/[[categoryId]]" tabindex="-1">
                         <paper-icon-button icon="arrow-back" aria-label="Go back"></paper-icon-button>
                     </a>
                 </div>
@@ -313,11 +314,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <div id="tabContainer" sticky$="[[_shouldShowTabs]]" hidden$="[[!_shouldShowTabs]]">
                 <template is="dom-if" if="[[_shouldRenderTabs]]">
                     <shop-tabs
-                            selected="[[categoryName]]"
+                            selected="[[categoryId]]"
                             attr-for-selected="name">
                         <template is="dom-repeat" items="[[categories]]" as="category" initial-count="4">
-                            <shop-tab name="[[category.name]]">
-                                <a href="/list/[[category.name]]">[[category.title]]</a>
+                            <shop-tab name="[[category.$key]]">
+                                <a href="/list/[[category.$key]]">[[category.name]]</a>
                             </shop-tab>
                         </template>
                     </shop-tabs>
@@ -329,10 +330,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <template is="dom-if" if="[[_shouldRenderDrawer]]">
             <!-- Two-way bind `drawerOpened` since app-drawer can update `opened` itself. -->
             <app-drawer opened="{{drawerOpened}}" swipe-open tabindex="0">
-                <iron-selector role="navigation" class="drawer-list" selected="[[categoryName]]"
+                <iron-selector role="navigation" class="drawer-list" selected="[[categoryId]]"
                                attr-for-selected="name">
                     <template is="dom-repeat" items="[[categories]]" as="category" initial-count="4">
-                        <a name="[[category.name]]" href="/list/[[category.name]]">[[category.title]]</a>
+                        <a name="[[category.name]]" href="/list/[[category.$key]]">[[category.name]]</a>
                     </template>
                 </iron-selector>
             </app-drawer>
@@ -349,9 +350,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <!-- cart view -->
             <shop-cart name="cart" cart="[[cart]]" total="[[total]]"></shop-cart>
             <!-- checkout view -->
-            <shop-checkout name="checkout" cart="[[cart]]" total="[[total]]" route="{{subroute}}"></shop-checkout>
+            <shop-checkout name="checkout" user="[[user]]" cart="[[cart]]" total="[[total]]" route="{{subroute}}"></shop-checkout>
 
-            <shop-orders name="orders"></shop-orders>
+            <shop-orders name="orders" user="[[user]]"></shop-orders>
 
             <shop-login name="login"></shop-login>
 
@@ -359,7 +360,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </iron-pages>
 
         <footer>
-            <a href="https://www.polymer-project.org/1.0/toolbox/">Made by Polymer</a>
+            <a href="https://www.polymer-project.org/1.0/toolbox/">Made by Polymer & Filip Prochazka</a>
             <div class="demo-label">Demo Only</div>
         </footer>
 
@@ -515,14 +516,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Scroll to the top of the page when navigating to a non-list page. For list view,
           // scroll to the last saved position only if the category has not changed.
           var scrollTop = 0;
-          if (this.page === 'list' && this.categoryName === detail.category) {
+          if (this.page === 'list' && this.categoryId === detail.category) {
             scrollTop = this._listScrollTop;
           }
           // Use `Polymer.AppLayout.scroll` with `behavior: 'silent'` to disable header scroll
           // effects during the scroll.
           Polymer.AppLayout.scroll({top: scrollTop, behavior: 'silent'});
 
-          this.categoryName = detail.category || '';
+          this.categoryId = detail.category || '';
 
           // Announce the page's title
           if (detail.title) {
