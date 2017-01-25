@@ -368,7 +368,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <!-- cart view -->
             <shop-cart name="cart" cart="[[cart]]" total="[[total]]"></shop-cart>
             <!-- checkout view -->
-            <shop-checkout name="checkout" user="[[user]]" cart="[[cart]]" total="[[total]]" route="{{subroute}}"></shop-checkout>
+            <shop-checkout name="checkout" fcm-active="[[fcmActive]]" user="[[user]]" cart="[[cart]]" total="[[total]]" route="{{subroute}}"></shop-checkout>
 
             <shop-orders name="orders" user="[[user]]"></shop-orders>
 
@@ -423,8 +423,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
 
         observers: [
-          '_routePageChanged(routeData.page)',
-          '_userChanged(user, fcmStatusKnown, fcmActive)'
+          '_routePageChanged(routeData.page)'
         ],
 
         listeners: {
@@ -435,7 +434,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           'announce': '_onAnnounce',
           'dom-change': '_domChange',
           'show-invalid-url-warning': '_onFallbackSelectionTriggered',
-          'request-login': '_requestLogin'
+          'request-login': '_requestLogin',
+          'request-fcm-permission': '_requestFcmPermission'
         },
 
         created: function () {
@@ -452,9 +452,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
         },
 
-        _userChanged: function (user, fcmStatusKnown, fcmActive) {
-          if(user && fcmStatusKnown && !fcmActive) {
-            let fcm = this.$.messaging;
+        _requestFcmPermission: function () {
+          let fcm = this.$.messaging;
+          if(this.user && !fcm.active) {
             fcm.requestPermission()
               .then(() => {
                 console.log('FCM permission granted')

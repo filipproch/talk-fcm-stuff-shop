@@ -376,6 +376,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <header state="success">
                     <h1>Thank you</h1>
                     <p>[[response.successMessage]]</p>
+
+                    <template is="dom-if" if="[[!fcmActive]]">
+                        <h2>Enable notifications?</h2>
+                        <p>We will send you notifications when order status changes.</p>
+                        <shop-button responsive>
+                            <a on-tap="_requestFcm" href="#">Enable</a>
+                        </shop-button>
+                    </template>
+
+                    <template is="dom-if" if="[[fcmActive]]">
+                        <h2>You will be notified about order status changes</h2>
+                    </template>
+
                     <shop-button responsive>
                         <a href="/">Finish</a>
                     </shop-button>
@@ -482,7 +495,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           user: {
             type: Object
+          },
+
+          fcmActive: {
+            type: Boolean
           }
+        },
+
+        _requestFcm: function () {
+          this.fire('request-fcm-permission')
         },
 
         _submit: function (e) {
@@ -669,7 +690,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
 
         _getEntryTotal: function (entry, goods) {
-          return this._formatPrice(entry.$val * goods[entry.$key].price);
+          return goods && goods[entry.$key] ?
+            this._formatPrice(entry.$val * goods[entry.$key].price) : null;
         },
 
         _visibleChanged: function (visible) {
