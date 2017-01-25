@@ -241,9 +241,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 user="{{user}}">
         </firebase-auth>
 
+        <firebase-document
+                path="/users/[[user.uid]]/name"
+                data="[[user.displayName]]">
+        </firebase-document>
+
+        <firebase-document
+                path="/users/[[user.uid]]/email"
+                data="[[user.email]]">
+        </firebase-document>
+
         <firebase-messaging
-                id="messaging">
+                id="messaging"
+                token="{{fcmToken}}"
+                status-known="{{fcmStatusKnown}}"
+                active="{{fcmActive}}">
         </firebase-messaging>
+
+        <firebase-document
+                path="/users/[[user.uid]]/fcmToken"
+                data="[[fcmToken]]">
+        </firebase-document>
 
         <!--<shop-analytics key=""></shop-analytics>-->
         <!--
@@ -405,7 +423,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         },
 
         observers: [
-          '_routePageChanged(routeData.page)'
+          '_routePageChanged(routeData.page)',
+          '_userChanged(user, fcmStatusKnown, fcmActive)'
         ],
 
         listeners: {
@@ -431,6 +450,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.listen(window, 'online', '_notifyNetworkStatus');
             this.listen(window, 'offline', '_notifyNetworkStatus');
           });
+        },
+
+        _userChanged: function (user, fcmStatusKnown, fcmActive) {
+          if(user && fcmStatusKnown && !fcmActive) {
+            let fcm = this.$.messaging;
+            fcm.requestPermission()
+              .then(() => {
+                console.log('FCM permission granted')
+              })
+              .catch((e) => {
+                console.warn('FCM permission blocked', e)
+              })
+          }
         },
 
         _routePageChanged: function (page) {

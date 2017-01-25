@@ -30,7 +30,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </style>
 
         <firebase-query
-                path="/orders/[[user.uid]]"
+                path="/orders"
+                order-by-child="user"
+                equal-to="[[user.uid]]"
                 data="{{orders}}">
         </firebase-query>
 

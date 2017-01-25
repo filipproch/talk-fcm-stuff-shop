@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "lib": [
+      "es6", "es7"
+    ]
+  },
+  "include": [
+    "fakeServer/**/*.ts"
+  ]
+}
